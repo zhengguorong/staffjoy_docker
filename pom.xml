@@ -159,7 +159,7 @@
                             <image>
                                 <name>${project.artifactId}</name>
                                 <build>
-                                    <from>java:8-jdk-alpine</from>
+                                    <from>bellsoft/liberica-openjdk-alpine-musl:11</from>
                                     <entryPoint>
                                         <exec>
                                             <args>java</args>

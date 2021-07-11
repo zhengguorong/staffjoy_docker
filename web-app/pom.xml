@@ -62,7 +62,7 @@
                 <plugin>
                     <groupId>com.github.warmuuh</groupId>
                     <artifactId>libsass-maven-plugin</artifactId>
-                    <version>0.2.8-libsass_3.4.4</version>
+                    <version>0.2.10-libsass_3.5.3</version>
                     <executions>
                         <execution>
                             <phase>generate-resources</phase>
@@ -79,12 +79,30 @@
                         <generateSourceMap>false</generateSourceMap>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>nl.geodienstencentrum.maven</groupId>   
+                    <artifactId>sass-maven-plugin</artifactId>    
+                    <version>2.18</version>    
+                    <configuration>
+                        <resources>
+                            <resource> 
+                            <source>
+                                    <directory>${basedir}/src/main/sass/</directory>
+                                    <includes>
+                                        <include>**/*.scss</include>
+                                    </includes>
+                                </source>
+                                <destination>${basedir}/src/main/resources/static/assets/css</destination>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>com.github.warmuuh</groupId>
-                <artifactId>libsass-maven-plugin</artifactId>
+                <groupId>nl.geodienstencentrum.maven</groupId>
+                <artifactId>sass-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
