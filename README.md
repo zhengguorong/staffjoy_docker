@@ -1,27 +1,74 @@
-# Staffjoy 教学版
+# Staffjoy M1适配版
 
-微服务和云原生架构教学案例项目，基于 Spring Boot 和 Kubernetes 技术栈
+## 修改内容
 
-<img src="doc/images/bobo_promote.jpg" width="500" height="400">
+1、m1芯片需要特定的arm适配的java，Dockfile改为以下依赖
 
-## 课程资料 PPT
+```bash
+FROM bellsoft/liberica-openjdk-alpine-musl:11
+```
 
-1. 第 1 章 [课程介绍和案例需求](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_01.pdf)
-2. 第 2 章 [系统架构设计和技术栈选型](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_02.pdf)
-3. 第 3 章 [服务开发框架设计和实践](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_03.pdf)
-4. 第 4 章 [可编程网关设计和实践](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_04.pdf)
-5. 第 5 章 [安全框架设计和实践](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_05.pdf)
-6. 第 6 章 [微服务测试设计和实践](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_06.pdf)
-7. 第 7 章 [可运维架构设计和实践](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_07.pdf)
-8. 第 8 章 [服务容器化和 Docker Compose 部署](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_08.pdf)
-9. 第 9 章 [云原生架构和 Kubernetes 容器云部署](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_09.pdf)
-10. 第 10 章 [项目复盘、扩展和应用](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_10.pdf)
-11. 第 11 章 [附录：Staffjoy 微服务实现简析](https://github.com/spring2go/staffjoy-ppt/blob/master/doc/ppts/Chapter_11.pdf)
-12. 附：[课程参考资料链接](doc/reference.md)
+2、前端项目node-sass编译有问题，改为依赖v14.16.0版本，另外npm下载比较困难，默认先设置淘宝镜像
 
-## 项目初衷
+```bash
+FROM node:14.16.0 as builder
+WORKDIR '/build'
+COPY app ./app
+COPY resources ./resources
+COPY third_party ./third_party
 
-微服务和云原生架构是目前互联网行业的技术热点，相关资料文档很多，但是缺乏端到端的贴近生产的案例，这就使得很多互联网开发人员(包括架构师)，虽然学习了很多微服务理论，但是在真正落地实施微服务云原生架构的时候，仍然会感到困惑。为此，我利用业余时间，通过改造一个叫[Staffjoy](https://github.com/staffjoy/v2)的开源项目，开发了这个教学版的案例项目。整个项目采用微服务架构，并且可以一键部署到 Kubernetes 容器云环境。最近我和极客时间合作，基于这个案例项目开发了一门课程《Spring Boot 与 Kubernetes 云原生微服务实践 ～ 全面掌握云原生应用的架构设计与实现》，参考[课程大纲](doc/syllabus.md)。希望通过实际案例项目和课程的学习，让开发人员/架构师不仅能够深入理解微服务和云原生架构原理，同时能够在生产实践中真正地去落地实施微服务和云原生架构。也希望这个项目成为微服务云原生架构的一个参考模版，进一步可以作为类似项目的脚手架。
+WORKDIR '/build/app'
+
+RUN npm config set registry http://registry.cnpmjs.org/
+RUN npm config set strict-ssl false
+RUN npm install
+# RUN npm rebuild node-sass
+RUN npm run build
+
+RUN ls /build/app/dist
+
+FROM nginx
+EXPOSE 80
+COPY --from=builder /build/app/dist /usr/share/nginx/html
+
+```
+
+3、`.env`文件连接数据库，如果数据库是docker启动的，记得用ip连接
+
+```
+ACCOUNT_DATASOURCE_URL=jdbc:mysql://192.168.0.110:3306/staffjoy_account?useUnicode=true&characterEncoding=utf-8
+ACCOUNT_DATASOURCE_USERNAME=root
+ACCOUNT_DATASOURCE_PASSWORD=123456
+COMPANY_DATASOURCE_URL=jdbc:mysql://192.168.0.110:3306/staffjoy_company?useUnicode=true&characterEncoding=utf-8
+COMPANY_DATASOURCE_USERNAME=root
+COMPANY_DATASOURCE_PASSWORD=123456
+```
+
+
+
+## 运行
+
+1、编译jar包
+
+```
+mvn clean package -DskipTests
+```
+
+2、构建docker镜像
+
+```3
+docker-compose build
+```
+
+3、启动镜像
+
+```
+docker-compose up
+```
+
+
+
+
 
 ## 课程目标
 
